@@ -36,7 +36,11 @@
 #define BOOTLOADER_SIZE			(2 * 1024)
 
 /* SRAM size */
+#if defined TARGET_DAPLINK_STM32F103C6
+#define SRAM_SIZE			(10 * 1024)
+#else
 #define SRAM_SIZE			(20 * 1024)
+#endif
 
 /* SRAM end (bottom of stack) */
 #define SRAM_END			(SRAM_BASE + SRAM_SIZE)
@@ -200,7 +204,11 @@ void Reset_Handler(void)
 	 * then enter HID bootloader...
 	 */
 	if ((magic_word == 0x424C) ||
+#if defined TARGET_DAPLINK_STM32F103C6
+		(!READ_BIT(GPIOA->IDR, GPIO_IDR_IDR6)) ||
+#else
 		READ_BIT(GPIOB->IDR, GPIO_IDR_IDR2) ||
+#endif
 		(check_user_code(USER_PROGRAM) == false)) {
 		if (magic_word == 0x424C) {
 

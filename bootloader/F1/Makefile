@@ -5,8 +5,8 @@ DEVICE = STM32F10X_MD
 VECTOR_TABLE_OFFSET = 0x0000
 
 # The default Flash Page size (Sector size) for LOW and MEDIUM STM32F103 devices is 1024 bytes
-# High Density STM32F103 devices have 2 kB Flash Page size  
-PAGE_SIZE = 1024 
+# High Density STM32F103 devices have 2 kB Flash Page size
+PAGE_SIZE = 1024
 
 C_SRCS = Src/main.c Src/usb.c Src/hid.c Src/led.c Src/flash.c
 
@@ -19,14 +19,14 @@ NULL	:= 2>/dev/null
 endif
 
 INCLUDE_DIRS += -I Inc
-INCLUDE_DIRS += -I CMSIS/Device/ST/STM32F10x/Include 
+INCLUDE_DIRS += -I CMSIS/Device/ST/STM32F10x/Include
 INCLUDE_DIRS += -I CMSIS/Include
 
 SRCS += $(C_SRCS)
 vpath %.c $(sort $(dir $(C_SRCS)))
 OBJS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SRCS:.c=.o)))
 
-CFLAGS += -mcpu=cortex-m3 -mthumb -Wall -Os
+CFLAGS += -mcpu=cortex-m3 -mthumb -Wall -Os -g3
 CFLAGS += -std=gnu99
 CFLAGS += -fno-common -static
 CFLAGS += -specs=nano.specs -specs=nosys.specs
@@ -83,6 +83,7 @@ generic-pb7: $(SRCS) clean gccversion build_generic-pb7 copy_generic-pb7 info si
 generic-pb0: $(SRCS) clean gccversion build_generic-pb0 copy_generic-pb0 info size
 generic-pb12: $(SRCS) clean gccversion build_generic-pb12 copy_generic-pb12 info size
 mini-stm32v3: $(SRCS) clean gccversion build_mini-stm32v3 copy_mini-stm32v3 info size
+daplink-stm32f103c6: $(SRCS) clean gccversion build_daplink-stm32f103c6 copy_daplink-stm32f103c6 info size
 
 build_maple-mini: TARGETFLAGS= -DTARGET_MAPLE_MINI
 build_maple-mini: LINKER_SCRIPT=STM32F103C8T6.ld
@@ -174,7 +175,14 @@ build_mini-stm32v3: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 copy_mini-stm32v3: $(BIN_DIR)
 	$(ECHO) "COPY    $(BIN_DIR)/hid_mini-stm32v3.bin"
 	$(Q)$(CP) $(BUILD_DIR)/$(TARGET).bin $(BIN_DIR)/hid_mini-stm32v3.bin
-  
+
+build_daplink-stm32f103c6: TARGETFLAGS= -DTARGET_DAPLINK_STM32F103C6
+build_daplink-stm32f103c6: LINKER_SCRIPT=STM32F103C6T6.ld
+build_daplink-stm32f103c6: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
+copy_daplink-stm32f103c6: $(BIN_DIR)
+	$(ECHO) "COPY    $(BIN_DIR)/hid_daplink_tm32f103c6.bin"
+	$(Q)$(CP) $(BUILD_DIR)/$(TARGET).bin $(BIN_DIR)/hid_daplink_tm32f103c6.bin
+
 $(BUILD_DIR)/$(TARGET).elf: $(OBJS)
 	$(ECHO) "LD      $@"
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) $(OBJS) -o "$@"
